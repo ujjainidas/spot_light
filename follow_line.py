@@ -10,9 +10,10 @@ class itl_run:
     def __init__(self) -> None:
         self.error = 0
 
-        self.port = 8080	
+        self.port = 6000	
+
         self.s = socket.socket()
-        s.connect(('127.0.0.1', port))	
+        self.s.connect(('127.0.0.1', self.port))	
 
         self.msg = Twist()
         self.msg.angular.x = 0.0 # yaw
@@ -30,16 +31,25 @@ class itl_run:
 
     def run_prog(self):
         ros_pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
-        # rospy.init_node('node_camera_sub', anonymous=True)
+        rospy.init_node('node_camera_sub', anonymous=True)
         # ros_key = rospy.Subscriber('node_camera', String, self.callback)
         rate = rospy.Rate(60)
         while not rospy.is_shutdown():
             print(self.error)
             self.msg.linear.x = 0.3
 
-            self.error = s.recv(1024).decode()
+            error_str = self.s.recv(1024).decode()
 
-            self.msg.angular.z = float(self.error)
+            # end_index = 0
+            # for i in range(0, len(error_str)): 
+            #     if error_str[i] == 0:
+            #         end_index = i
+            #         break
+            
+            # if end_index > 1:
+            self.error = error_str[0:4]
+            self.msg.angular.z = -float(self.error)
+            print(self.msg.angular.z)
 
             print("running robot")
 
